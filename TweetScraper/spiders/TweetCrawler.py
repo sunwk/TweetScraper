@@ -9,7 +9,6 @@ from scrapy_selenium import SeleniumRequest, SeleniumMiddleware
 
 from TweetScraper.items import Tweet, User
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -54,13 +53,11 @@ class TweetScraper(CrawlSpider):
         # regex for finding next cursor
         self.cursor_re = re.compile('"(scroll:[^"]*)"')
 
-
     def start_requests(self):
         """
         Use the landing page to get cookies first
         """
         yield SeleniumRequest(url="https://twitter.com/explore", callback=self.parse_home_page)
-
 
     def parse_home_page(self, response):
         """
@@ -70,7 +67,6 @@ class TweetScraper(CrawlSpider):
         self.update_cookies(response)
         for r in self.start_query_request():
             yield r
-
 
     def update_cookies(self, response):
         driver = response.meta['driver']
@@ -89,8 +85,6 @@ class TweetScraper(CrawlSpider):
         print('headers:\n--------------------------\n')
         print(self.headers)
         print('\n--------------------------\n')
-
-
 
     def start_query_request(self, cursor=None):
         """
@@ -114,7 +108,6 @@ class TweetScraper(CrawlSpider):
             # update cookies
             yield SeleniumRequest(url="https://twitter.com/explore", callback=self.update_cookies, dont_filter=True)
 
-
     def parse_result_page(self, response):
         """
         Get the tweets & users & next request
@@ -133,18 +126,16 @@ class TweetScraper(CrawlSpider):
         for r in self.start_query_request(cursor=cursor):
             yield r
 
-
     def parse_tweet_item(self, items):
-        for k,v in items.items():
+        for k, v in items.items():
             # assert k == v['id_str'], (k,v)
             tweet = Tweet()
             tweet['id_'] = k
             tweet['raw_data'] = v
             yield tweet
 
-
     def parse_user_item(self, items):
-        for k,v in items.items():
+        for k, v in items.items():
             # assert k == v['id_str'], (k,v)
             user = User()
             user['id_'] = k
